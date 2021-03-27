@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<materials>
+  <solid name="dirt" texture="dirt" />
+  <solid name="grass_top" texture="grass_block_top" />
+  <solid name="grass_side" texture="grass_block_side" />
+</materials>
