@@ -175,6 +175,7 @@ public static class Globals
         {
             Chunks[index].ProcessGrass();
             GameObject obj = GameObject.Instantiate(chunkObject);
+            obj.name = $"Chunk {x} {z}";
             obj.transform.position = new Vector3(x * ChunkX, 0, z * ChunkZ);
             ChunkScript cs = obj.AddComponent<ChunkScript>();
             cs.ChunkData = Chunks[index];
@@ -193,7 +194,7 @@ public static class Globals
             }
             long x = i.Key % MaxChunkCount, z = i.Key / MaxChunkCount;
 
-            if (Math.Abs(x - playerPos.Item1) > RenderDistance && Math.Abs(z - playerPos.Item2) > RenderDistance)
+            if (Math.Abs(x - playerPos.Item1) > RenderDistance || Math.Abs(z - playerPos.Item2) > RenderDistance)
             {
                 actionQueue.Enqueue(() => GameObject.Destroy(GameObject.Find($"Chunk {x} {z}")));
                 i.Value.Loaded = false;

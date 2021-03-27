@@ -5,17 +5,17 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
-    private (long, long) chunkPos;
-    public bool onSky = false;
+    private (long, long) chunkPos = (long.MaxValue, long.MaxValue);
+    public bool onSky = false, locked = true;
+    float ty = 0;
 
     // Start is called before the first frame update
     void Start()
     {
         Globals.LoadResources();
-        chunkPos = CalculateChunkPos();
-        LoadVisibleChunks();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        ty = transform.position.y;
     }
 
     void LoadVisibleChunks()
@@ -60,6 +60,12 @@ public class PlayerScript : MonoBehaviour
 
         if (newChunkPos != chunkPos)
         {
+            if (!Globals.Chunks.ContainsKey(Globals.GetChunkIndex(newChunkPos)))
+            {
+                GetComponent<Rigidbody>().useGravity = false;
+                locked = true;
+            }
+
             chunkPos = newChunkPos;
             Thread thread = new Thread(() =>
             {
@@ -75,6 +81,19 @@ public class PlayerScript : MonoBehaviour
             action();
         }
 
+        if (locked)
+        {
+            if (locked = !Globals.Chunks.ContainsKey(Globals.GetChunkIndex(newChunkPos)))
+            {
+                return;
+            }
+            else
+            {
+                transform.position = new Vector3(transform.position.x, ty, transform.position.z);
+            }
+        }
+
+        GetComponent<Rigidbody>().useGravity = true;
         Vector3 translation = new Vector3();
         translation.x = Input.GetAxis("Horizontal");
         translation.z = Input.GetAxis("Vertical");
