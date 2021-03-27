@@ -18,26 +18,26 @@ public class PlayerScript : MonoBehaviour
         ty = transform.position.y;
     }
 
-    void LoadVisibleChunks()
+    static void LoadVisibleChunks(long x, long z)
     {
-        for (long i = chunkPos.Item1 - Globals.RenderDistance;
-            i <= chunkPos.Item1 + Globals.RenderDistance;
+        for (long i = x - Globals.RenderDistance;
+            i <= x + Globals.RenderDistance;
             i++)
         {
-            for (long j = chunkPos.Item2 - Globals.RenderDistance;
-            j <= chunkPos.Item2 + Globals.RenderDistance;
+            for (long j = z - Globals.RenderDistance;
+            j <= z + Globals.RenderDistance;
             j++)
             {
                 Globals.GenerateChunk(i, j);
             }
         }
 
-        for (long i = chunkPos.Item1 - Globals.RenderDistance;
-            i <= chunkPos.Item1 + Globals.RenderDistance;
+        for (long i = x - Globals.RenderDistance;
+            i <= x + Globals.RenderDistance;
             i++)
         {
-            for (long j = chunkPos.Item2 - Globals.RenderDistance;
-            j <= chunkPos.Item2 + Globals.RenderDistance;
+            for (long j = z - Globals.RenderDistance;
+            j <= z + Globals.RenderDistance;
             j++)
             {
                 Globals.LoadChunk(i, j);
@@ -70,7 +70,7 @@ public class PlayerScript : MonoBehaviour
             Thread thread = new Thread(() =>
             {
                 Globals.ChunkGC(chunkPos);
-                LoadVisibleChunks();
+                LoadVisibleChunks(chunkPos.Item1, chunkPos.Item2);
             });
             thread.Start();
         }
