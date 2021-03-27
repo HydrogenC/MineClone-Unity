@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -82,19 +83,22 @@ public static class Globals
     {
         get;
         set;
-    } = 4;
+    } = 5;
 
-    public static Dictionary<long, Chunk> Chunks = new Dictionary<long, Chunk>();
+    public static ConcurrentQueue<Action> actionQueue = new ConcurrentQueue<Action>();
+    public static ConcurrentDictionary<long, Chunk> Chunks = new ConcurrentDictionary<long, Chunk>();
     public static Dictionary<string, Material> Materials = new Dictionary<string, Material>();
     public static Block[] Blocks = new Block[]
     {
         new Block
         {
+            BlockId="air",
             Solid = false,
             Renderable = false
         },
         new Block
         {
+            BlockId="dirt",
             BaseMaterialNames = new string[]
             {
                 "dirt",
@@ -107,6 +111,7 @@ public static class Globals
         },
         new Block
         {
+            BlockId="grass",
             BaseMaterialNames = new string[]
             {
                 "grass_top",
@@ -153,7 +158,7 @@ public static class Globals
         long index = GetChunkIndex(x, z);
         if (!Chunks.ContainsKey(index))
         {
-            Chunks.Add(index, new Chunk(x, z));
+            Chunks[index] = new Chunk(x, z);
         }
     }
 
@@ -166,11 +171,15 @@ public static class Globals
         }
 
         Chunks[index].Loaded = true;
-        GameObject obj = GameObject.Instantiate(chunkObject);
-        obj.transform.position = new Vector3(x * ChunkX, 0, z * ChunkZ);
-        ChunkScript cs = obj.AddComponent<ChunkScript>();
-        cs.ChunkData = Chunks[index];
-        cs.UpdateMesh();
+        actionQueue.Enqueue(() =>
+        {
+            Chunks[index].ProcessGrass();
+            GameObject obj = GameObject.Instantiate(chunkObject);
+            obj.transform.position = new Vector3(x * ChunkX, 0, z * ChunkZ);
+            ChunkScript cs = obj.AddComponent<ChunkScript>();
+            cs.ChunkData = Chunks[index];
+            cs.UpdateMesh();
+        });
     }
 
     public static void ChunkGC((long, long) playerPos)
@@ -186,7 +195,7 @@ public static class Globals
 
             if (Math.Abs(x - playerPos.Item1) > RenderDistance && Math.Abs(z - playerPos.Item2) > RenderDistance)
             {
-                GameObject.Destroy(GameObject.Find($"Chunk {x} {z}"));
+                actionQueue.Enqueue(() => GameObject.Destroy(GameObject.Find($"Chunk {x} {z}")));
                 i.Value.Loaded = false;
                 count++;
             }

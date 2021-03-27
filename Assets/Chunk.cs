@@ -58,12 +58,22 @@ public class Chunk
             else if (y == perlin[x, z])
             {
                 Blocks[x, y, z] = Globals.Blocks[2];
-                Blocks[x, y, z].OverrideMaterials[0] = Material.Instantiate(Globals.Materials[Blocks[x, y, z].BaseMaterialNames[0]]);
-                Blocks[x, y, z].OverrideMaterials[0].color = new Color(134f / 255, 183f / 255, 131f / 255);
             }
             else
             {
                 Blocks[x, y, z] = Globals.Blocks[0];
+            }
+        });
+    }
+
+    public void ProcessGrass()
+    {
+        ForEach((x, y, z) =>
+        {
+            if (Blocks[x, y, z] == Globals.Blocks[2])
+            {
+                Blocks[x, y, z].OverrideMaterials[0] = Material.Instantiate(Globals.Materials[Blocks[x, y, z].BaseMaterialNames[0]]);
+                Blocks[x, y, z].OverrideMaterials[0].color = new Color(134f / 255, 183f / 255, 131f / 255);
             }
         });
     }

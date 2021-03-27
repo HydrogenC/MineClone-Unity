@@ -57,11 +57,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Chunk.cs" />
+    <Compile Include="Assets\Block.cs" />
     <Compile Include="Assets\PlayerScript.cs" />
     <Compile Include="Assets\Globals.cs" />
     <Compile Include="Assets\ChunkMeshBuilder.cs" />
     <Compile Include="Assets\ChunkScript.cs" />
-    <Compile Include="Assets\Block.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\Resources\Blocks\Materials.xml" />

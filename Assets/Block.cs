@@ -7,6 +7,12 @@ using UnityEngine;
 
 public class Block
 {
+    public string BlockId
+    {
+        get; 
+        set;
+    }
+
     public bool Solid
     {
         get;
@@ -30,4 +36,7 @@ public class Block
         get;
         set;
     }
+
+    public static bool operator ==(Block a, Block b) => a.BlockId == b.BlockId;
+    public static bool operator !=(Block a, Block b) => a.BlockId != b.BlockId;
 }
