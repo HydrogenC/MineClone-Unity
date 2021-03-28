@@ -31,11 +31,11 @@ public class Chunk
         set;
     }
 
-    public Block[,,] Blocks
+    public IBlockState[,,] Blocks
     {
         get;
         set;
-    } = new Block[16, 512, 16];
+    } = new IBlockState[16, 512, 16];
 
     public Chunk(long chunkX, long chunkZ)
     {
@@ -53,27 +53,15 @@ public class Chunk
         {
             if (y < perlin[x, z])
             {
-                Blocks[x, y, z] = Globals.Blocks[1];
+                Blocks[x, y, z] = Globals.BlockTypes[1].GetDefaultBlockState(Facing.PosY);
             }
             else if (y == perlin[x, z])
             {
-                Blocks[x, y, z] = Globals.Blocks[2];
+                Blocks[x, y, z] = Globals.BlockTypes[2].GetDefaultBlockState(Facing.PosY);
             }
             else
             {
-                Blocks[x, y, z] = Globals.Blocks[0];
-            }
-        });
-    }
-
-    public void ProcessGrass()
-    {
-        ForEach((x, y, z) =>
-        {
-            if (Blocks[x, y, z] == Globals.Blocks[2])
-            {
-                Blocks[x, y, z].OverrideMaterials[0] = Material.Instantiate(Globals.Materials[Blocks[x, y, z].BaseMaterialNames[0]]);
-                Blocks[x, y, z].OverrideMaterials[0].color = new Color(134f / 255, 183f / 255, 131f / 255);
+                Blocks[x, y, z] = Globals.BlockTypes[0].GetDefaultBlockState(Facing.PosY);
             }
         });
     }

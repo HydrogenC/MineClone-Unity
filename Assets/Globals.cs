@@ -7,8 +7,33 @@ using System.Threading.Tasks;
 using System.Xml;
 using UnityEngine;
 
+public struct BlockPos
+{
+    long x, y, z;
+
+    public BlockPos(long x, long y, long z)
+    {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public BlockPos(Vector3 pos)
+    {
+        x = Mathf.FloorToInt(pos.x);
+        y = Mathf.FloorToInt(pos.y);
+        z = Mathf.FloorToInt(pos.z);
+    }
+
+    public Vector3 ToVector3()
+    {
+        return new Vector3(x, y, z);
+    }
+}
+
 public static class Globals
 {
+
     public static readonly Vector3[][] Vertices =
     {
         // Top
@@ -88,39 +113,34 @@ public static class Globals
     public static ConcurrentQueue<Action> actionQueue = new ConcurrentQueue<Action>();
     public static ConcurrentDictionary<long, Chunk> Chunks = new ConcurrentDictionary<long, Chunk>();
     public static Dictionary<string, Material> Materials = new Dictionary<string, Material>();
-    public static Block[] Blocks = new Block[]
+    public static Block[] BlockTypes = new Block[]
     {
         new Block
         {
             BlockId="air",
             Solid = false,
-            Renderable = false
+            Renderable = false,
+            DefaultBlockState=new EmptyBlockState()
         },
         new Block
         {
             BlockId="dirt",
-            BaseMaterialNames = new string[]
-            {
-                "dirt",
-                "dirt",
-                "dirt",
-                "dirt",
-                "dirt",
-                "dirt"
-            }
+            DefaultBlockState = new BasicBlockState(
+                new string[]
+                {
+                    "dirt",
+                    "dirt",
+                    "dirt",
+                    "dirt",
+                    "dirt",
+                    "dirt"
+                }
+                )
         },
         new Block
         {
             BlockId="grass",
-            BaseMaterialNames = new string[]
-            {
-                "grass_top",
-                "grass_side",
-                "grass_side",
-                "grass_side",
-                "grass_side",
-                "dirt"
-            }
+            DefaultBlockState = new GrassBlockState()
         }
     };
 
@@ -140,6 +160,14 @@ public static class Globals
             Material material = Material.Instantiate(solidMaterial);
             material.mainTexture = Resources.Load<Texture>("Textures/" + i.GetAttribute("texture"));
             Materials.Add(i.GetAttribute("name"), material);
+        }
+
+        foreach (var i in BlockTypes)
+        {
+            if (i.DefaultBlockState is BasicBlockState state)
+            {
+                state.SetBlockType(i);
+            }
         }
     }
 
@@ -173,7 +201,6 @@ public static class Globals
         Chunks[index].Loaded = true;
         actionQueue.Enqueue(() =>
         {
-            Chunks[index].ProcessGrass();
             GameObject obj = GameObject.Instantiate(chunkObject);
             obj.name = $"Chunk {x} {z}";
             obj.transform.position = new Vector3(x * ChunkX, 0, z * ChunkZ);
@@ -192,6 +219,7 @@ public static class Globals
             {
                 continue;
             }
+
             long x = i.Key % MaxChunkCount, z = i.Key / MaxChunkCount;
 
             if (Math.Abs(x - playerPos.Item1) > RenderDistance || Math.Abs(z - playerPos.Item2) > RenderDistance)

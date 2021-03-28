@@ -62,6 +62,10 @@
     <Compile Include="Assets\Globals.cs" />
     <Compile Include="Assets\ChunkMeshBuilder.cs" />
     <Compile Include="Assets\ChunkScript.cs" />
+    <Compile Include="Assets\IBlockState.cs" />
+    <Compile Include="Assets\BasicBlockState.cs" />
+    <Compile Include="Assets\GrassBlockState.cs" />
+    <Compile Include="Assets\EmptyBlockState.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\Resources\Blocks\Materials.xml" />
