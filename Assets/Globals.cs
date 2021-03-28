@@ -108,7 +108,7 @@ public static class Globals
     {
         get;
         set;
-    } = 5;
+    } = 1;
 
     public static ConcurrentQueue<Action> actionQueue = new ConcurrentQueue<Action>();
     public static ConcurrentDictionary<long, Chunk> Chunks = new ConcurrentDictionary<long, Chunk>();

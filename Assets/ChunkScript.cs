@@ -9,6 +9,7 @@ public class ChunkScript : MonoBehaviour
 {
     ChunkMeshBuilder meshBuilder;
     List<Material> materials = new List<Material>();
+    GameObject player;
 
     public Chunk ChunkData
     {
@@ -19,11 +20,21 @@ public class ChunkScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        player = GameObject.Find("Capsule");
     }
 
     public void UpdateMesh()
     {
+        if (ChunkData is null)
+        {
+            return;
+        }
+
+        if (player is null)
+        {
+            Start();
+        }
+
         meshBuilder = new ChunkMeshBuilder();
         ChunkData.ForEach((x, y, z) =>
         {
@@ -31,6 +42,16 @@ public class ChunkScript : MonoBehaviour
             {
                 return;
             }
+
+            /*
+            Vector2 blockDirection = new Vector2(ChunkData.ChunkPos.Item1 * ChunkX + x, ChunkData.ChunkPos.Item2 * ChunkZ + z) - new Vector2(player.transform.position.x, player.transform.position.z);
+            blockDirection.Normalize();
+            blockDirection += new Vector2(player.transform.forward.x, player.transform.forward.z).normalized;
+            if (blockDirection.sqrMagnitude < 1.8f)
+            {
+                return;
+            }
+            */
 
             Vector3 vector = new Vector3(x, y, z);
             bool[] renderFace = new bool[6] { false, false, false, false, false, false };
@@ -82,6 +103,7 @@ public class ChunkScript : MonoBehaviour
             // Bottom
             renderFace[5] = y == 0 || !ChunkData.Blocks[x, y - 1, z].GetBlockType().Solid;
 
+
             for (int i = 0; i < 6; i++)
             {
                 if (renderFace[i])
@@ -116,6 +138,6 @@ public class ChunkScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        
     }
 }
