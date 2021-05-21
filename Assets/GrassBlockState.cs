@@ -18,26 +18,25 @@ public class GrassBlockState : IBlockState
         return BlockTypes[2];
     }
 
-    public Material GetFaceMaterial(int face)
+    public Rect GetFaceUVRect(int face)
     {
         if (face == 0)
         {
-            if (!Materials.ContainsKey("grass_generated"))
+            if (!Textures.ContainsKey("grass_generated"))
             {
-                Material mat = Material.Instantiate(Materials["grass_top"]);
-                mat.color = new Color(134f / 255, 183f / 255, 131f / 255);
-                Materials["grass_generated"] = mat;
+                //Material mat = Material.Instantiate(Textures["grass_top"]);
+                //mat.color = new Color(134f / 255, 183f / 255, 131f / 255);
             }
 
-            return Materials["grass_generated"];
+            return Textures["grass_top"];
         }
         else if (face == 5)
         {
-            return Materials["dirt"];
+            return Textures["dirt"];
         }
         else
         {
-            return Materials["grass_side"];
+            return Textures["grass_side"];
         }
     }
 

@@ -32,9 +32,9 @@ public class BasicBlockState : IBlockState
         return blockType;
     }
 
-    public Material GetFaceMaterial(int face)
+    public Rect GetFaceUVRect(int face)
     {
-        return Globals.Materials[MaterialNames[face]];
+        return Globals.Textures[MaterialNames[face]];
     }
 
     public Facing GetFacicng()

@@ -17,7 +17,7 @@ public class EmptyBlockState : IBlockState
         return Globals.BlockTypes[0];
     }
 
-    public Material GetFaceMaterial(int face)
+    public Rect GetFaceUVRect(int face)
     {
         throw new NotImplementedException();
     }

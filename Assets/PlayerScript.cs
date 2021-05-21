@@ -75,9 +75,9 @@ public class PlayerScript : MonoBehaviour
             thread.Start();
         }
 
-        while (!Globals.actionQueue.IsEmpty)
+        while (!Globals.ActionQueue.IsEmpty)
         {
-            Globals.actionQueue.TryDequeue(out var action);
+            Globals.ActionQueue.TryDequeue(out var action);
             action();
         }
 

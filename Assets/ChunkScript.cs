@@ -8,7 +8,6 @@ using static Globals;
 public class ChunkScript : MonoBehaviour
 {
     ChunkMeshBuilder meshBuilder;
-    List<Material> materials = new List<Material>();
     GameObject player;
 
     public Chunk ChunkData
@@ -20,7 +19,7 @@ public class ChunkScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        player = GameObject.Find("Capsule");
+        player = GameObject.Find("Main Camera");
     }
 
     public void UpdateMesh()
@@ -42,16 +41,6 @@ public class ChunkScript : MonoBehaviour
             {
                 return;
             }
-
-            /*
-            Vector2 blockDirection = new Vector2(ChunkData.ChunkPos.Item1 * ChunkX + x, ChunkData.ChunkPos.Item2 * ChunkZ + z) - new Vector2(player.transform.position.x, player.transform.position.z);
-            blockDirection.Normalize();
-            blockDirection += new Vector2(player.transform.forward.x, player.transform.forward.z).normalized;
-            if (blockDirection.sqrMagnitude < 1.8f)
-            {
-                return;
-            }
-            */
 
             Vector3 vector = new Vector3(x, y, z);
             bool[] renderFace = new bool[6] { false, false, false, false, false, false };
@@ -116,28 +105,12 @@ public class ChunkScript : MonoBehaviour
         Mesh mesh = meshBuilder.BuildMesh();
         GetComponent<MeshFilter>().mesh = mesh;
         GetComponent<MeshCollider>().sharedMesh = mesh;
-        GetComponent<MeshRenderer>().materials = materials.ToArray();
-    }
-
-    void AddFace(int faceIndex, Vector3 basePos, IBlockState block)
-    {
-        for (int i = 0; i < Vertices[faceIndex].Length; i++)
-        {
-            meshBuilder.AddVertice(Vertices[faceIndex][i] + basePos, UVs[i]);
-        }
-
-        int[] triangles = new int[Triangles.Length];
-        for (int i = 0; i < Triangles.Length; i++)
-        {
-            triangles[i] = Triangles[i] + meshBuilder.SubMeshCount * 4;
-        }
-        meshBuilder.AddSubmesh(triangles);
-        materials.Add(block.GetFaceMaterial(faceIndex));
+        GetComponent<MeshRenderer>().material = PackedMaterial;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        UpdateMesh();
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using static Globals;
 
 public class Chunk
 {
@@ -14,12 +15,6 @@ public class Chunk
     } = false;
 
     public bool ForceLoad
-    {
-        get;
-        set;
-    } = false;
-
-    public bool Generated
     {
         get;
         set;
@@ -40,10 +35,10 @@ public class Chunk
     public Chunk(long chunkX, long chunkZ)
     {
         ChunkPos = (chunkX, chunkZ);
-        int[,] perlin = new int[Globals.ChunkX, Globals.ChunkZ];
-        for (int x = 0; x < Globals.ChunkX; x++)
+        int[,] perlin = new int[ChunkX, ChunkZ];
+        for (int x = 0; x < ChunkX; x++)
         {
-            for (int z = 0; z < Globals.ChunkZ; z++)
+            for (int z = 0; z < ChunkZ; z++)
             {
                 perlin[x, z] = 64 + Mathf.RoundToInt(6 * Mathf.PerlinNoise((ChunkPos.Item1 * Globals.ChunkX + x) / 16.789f, (ChunkPos.Item2 * Globals.ChunkZ + z) / 16.789f));
             }
@@ -53,30 +48,35 @@ public class Chunk
         {
             if (y < perlin[x, z])
             {
-                Blocks[x, y, z] = Globals.BlockTypes[1].GetDefaultBlockState(Facing.PosY);
+                Blocks[x, y, z] = BlockTypes[1].GetDefaultBlockState(Facing.PosY);
             }
             else if (y == perlin[x, z])
             {
-                Blocks[x, y, z] = Globals.BlockTypes[2].GetDefaultBlockState(Facing.PosY);
+                Blocks[x, y, z] = BlockTypes[2].GetDefaultBlockState(Facing.PosY);
             }
             else
             {
-                Blocks[x, y, z] = Globals.BlockTypes[0].GetDefaultBlockState(Facing.PosY);
+                Blocks[x, y, z] = BlockTypes[0].GetDefaultBlockState(Facing.PosY);
             }
         });
     }
 
-    public void ForEach(Action<int, int, int> action)
+    public void ForEach(Action<short, short, short> action)
     {
-        for (int x = 0; x < Globals.ChunkX; x++)
+        for (short x = 0; x < ChunkX; x++)
         {
-            for (int y = 0; y < Globals.ChunkY; y++)
+            for (short y = 0; y < ChunkY; y++)
             {
-                for (int z = 0; z < Globals.ChunkZ; z++)
+                for (short z = 0; z < ChunkZ; z++)
                 {
                     action(x, y, z);
                 }
             }
         }
+    }
+
+    public BlockPos GetBlockWorldPos(short x, short y, short z)
+    {
+        return new BlockPos(x + ChunkX * ChunkPos.Item1, y + ChunkY * ChunkPos.Item2, z);
     }
 }

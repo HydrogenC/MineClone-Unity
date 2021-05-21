@@ -19,7 +19,7 @@ public interface IBlockState : ICloneable
 {
     public Block GetBlockType();
 
-    public Material GetFaceMaterial(int face);
+    public Rect GetFaceUVRect(int face);
 
     public Facing GetFacicng();
     public IBlockState SetFacing(Facing facing);

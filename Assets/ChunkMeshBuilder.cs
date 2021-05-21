@@ -4,17 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using static Globals;
 
 class ChunkMeshBuilder
 {
     private List<Vector3> vertices;
-    private List<int[]> submeshes;
     private List<Vector2> uvs;
+    private List<int> triangles;
+    private int faceCount = 0;
 
     public ChunkMeshBuilder()
     {
         vertices = new List<Vector3>();
-        submeshes = new List<int[]>();
+        triangles = new List<int>();
         uvs = new List<Vector2>();
     }
 
@@ -30,24 +32,23 @@ class ChunkMeshBuilder
         this.uvs.Add(uvs);
     }
 
-    public void AddSubmesh(int[] triangles)
+    public void AddTriangles(int[] newTriangles)
     {
-        submeshes.Add(triangles);
+        triangles.AddRange(newTriangles);
     }
 
     public Mesh BuildMesh()
     {
-        Mesh mesh = new Mesh();
-        mesh.subMeshCount = submeshes.Count;
-        mesh.vertices = vertices.ToArray();
-        mesh.uv = uvs.ToArray();
-        for (int i=0;i<submeshes.Count;i++)
+        Mesh mesh = new Mesh
         {
-            mesh.SetTriangles(submeshes[i], i);
-        }
+            vertices = vertices.ToArray(),
+            uv = uvs.ToArray(),
+            triangles = triangles.ToArray()
+        };
+
         mesh.RecalculateNormals();
         return mesh;
     }
 
-    public int SubMeshCount => submeshes.Count;
+    public int FaceCount => faceCount;
 }

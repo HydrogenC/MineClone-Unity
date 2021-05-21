@@ -110,9 +110,9 @@ public static class Globals
         set;
     } = 1;
 
-    public static ConcurrentQueue<Action> actionQueue = new ConcurrentQueue<Action>();
+    public static ConcurrentQueue<Action> ActionQueue = new ConcurrentQueue<Action>();
     public static ConcurrentDictionary<long, Chunk> Chunks = new ConcurrentDictionary<long, Chunk>();
-    public static Dictionary<string, Material> Materials = new Dictionary<string, Material>();
+    public static Dictionary<string, Rect> Textures = new Dictionary<string, Material>();
     public static Block[] BlockTypes = new Block[]
     {
         new Block
@@ -144,23 +144,25 @@ public static class Globals
         }
     };
 
-    public static GameObject chunkObject;
-    public static Material solidMaterial;
+    public static GameObject ChunkObject;
+    public static Material PackedMaterial;
 
     public static void LoadResources()
     {
-        chunkObject = Resources.Load<GameObject>("Chunk");
-        solidMaterial = Resources.Load<Material>("SolidMaterial");
+        ChunkObject = Resources.Load<GameObject>("Chunk");
+        PackedMaterial = Resources.Load<Material>("SolidMaterial");
         var n = Resources.Load<TextAsset>("Blocks/Materials");
         XmlDocument document = new XmlDocument();
         document.LoadXml(n.text);
 
+        List<Texture2D> textures = new List<Texture2D>(); 
         foreach (XmlElement i in document.DocumentElement.ChildNodes)
         {
-            Material material = Material.Instantiate(solidMaterial);
-            material.mainTexture = Resources.Load<Texture>("Textures/" + i.GetAttribute("texture"));
-            Materials.Add(i.GetAttribute("name"), material);
+            textures.Add(Resources.Load<Texture2D>("Textures/" + i.GetAttribute("texture")));
         }
+        Texture2D packedTexture = new Texture2D(8192, 8192);
+        packedTexture.PackTextures(textures.ToArray(), 0);
+        PackedMaterial.mainTexture = packedTexture;
 
         foreach (var i in BlockTypes)
         {
@@ -199,9 +201,9 @@ public static class Globals
         }
 
         Chunks[index].Loaded = true;
-        actionQueue.Enqueue(() =>
+        ActionQueue.Enqueue(() =>
         {
-            GameObject obj = GameObject.Instantiate(chunkObject);
+            GameObject obj = GameObject.Instantiate(ChunkObject);
             obj.name = $"Chunk {x} {z}";
             obj.transform.position = new Vector3(x * ChunkX, 0, z * ChunkZ);
             ChunkScript cs = obj.AddComponent<ChunkScript>();
@@ -224,7 +226,7 @@ public static class Globals
 
             if (Math.Abs(x - playerPos.Item1) > RenderDistance || Math.Abs(z - playerPos.Item2) > RenderDistance)
             {
-                actionQueue.Enqueue(() => GameObject.Destroy(GameObject.Find($"Chunk {x} {z}")));
+                ActionQueue.Enqueue(() => GameObject.Destroy(GameObject.Find($"Chunk {x} {z}")));
                 i.Value.Loaded = false;
                 count++;
             }
