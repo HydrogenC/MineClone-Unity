@@ -9,7 +9,8 @@ using static Globals;
 class ChunkMeshBuilder
 {
     private List<Vector3> vertices;
-    private List<Vector2> uvs;
+    private List<Vector2> uv0;
+    private List<Vector2> uv1;
     private List<int> triangles;
     private int faceCount = 0;
 
@@ -17,19 +18,15 @@ class ChunkMeshBuilder
     {
         vertices = new List<Vector3>();
         triangles = new List<int>();
-        uvs = new List<Vector2>();
+        uv0 = new List<Vector2>();
+        uv1 = new List<Vector2>();
     }
 
-    public void AddVertices(ICollection<Vector3> vertices, ICollection<Vector2> uvs)
-    {
-        this.vertices.AddRange(vertices);
-        this.uvs.AddRange(uvs);
-    }
-
-    public void AddVertice(Vector3 vertices, Vector2 uvs)
+    public void AddVertice(Vector3 vertices, Vector2 uv0, Vector2 uv1)
     {
         this.vertices.Add(vertices);
-        this.uvs.Add(uvs);
+        this.uv0.Add(uv0);
+        this.uv1.Add(uv1);
     }
 
     public void AddTriangles(int[] newTriangles)
@@ -49,7 +46,7 @@ class ChunkMeshBuilder
         };
         for (int i = 0; i < Vertices[faceIndex].Length; i++)
         {
-            AddVertice(Vertices[faceIndex][i] + basePos, uvCoords[i]);
+            AddVertice(Vertices[faceIndex][i] + basePos, uvCoords[i], (block is GrassBlockState) ? GrassColorMapUV[i] : DefaultColorMapUV[i]);
         }
 
         int[] triangles = new int[Triangles.Length];
@@ -66,7 +63,8 @@ class ChunkMeshBuilder
         Mesh mesh = new Mesh
         {
             vertices = vertices.ToArray(),
-            uv = uvs.ToArray(),
+            uv = uv0.ToArray(),
+            uv2 = uv1.ToArray(),
             triangles = triangles.ToArray()
         };
 

@@ -67,8 +67,10 @@
     <Compile Include="Assets\IBlockState.cs" />
     <Compile Include="Assets\ChunkScript.cs" />
     <Compile Include="Assets\GrassBlockState.cs" />
+    <Compile Include="Assets\uPaddingBleeding.cs" />
   </ItemGroup>
   <ItemGroup>
+     <None Include="Assets\Resources\GrassShader.shader" />
      <None Include="Assets\Resources\Blocks\Materials.xml" />
     <Reference Include="UnityEngine">
       <HintPath>D:\Program Files\Unity\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>

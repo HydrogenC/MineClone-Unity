@@ -91,12 +91,20 @@ public static class Globals
         0,1,2,2,1,3
     };
 
-    public static readonly Vector2[] UVs =
+    public static readonly Vector2[] DefaultColorMapUV =
     {
-        new Vector2(0,0),
-        new Vector2(0,1),
-        new Vector2(1,0),
+        new Vector2(1,1),
+        new Vector2(1,1),
+        new Vector2(1,1),
         new Vector2(1,1)
+    };
+
+    public static readonly Vector2[] GrassColorMapUV =
+    {
+        new Vector2(0.4f,0.4f),
+        new Vector2(0.4f,0.4f),
+        new Vector2(0.4f,0.4f),
+        new Vector2(0.4f,0.4f)
     };
 
     public const int ChunkX = 16;
@@ -147,6 +155,18 @@ public static class Globals
     public static GameObject ChunkObject;
     public static Material PackedMaterial;
 
+    static Texture2D ChangeFormat(this Texture2D oldTexture, TextureFormat newFormat)
+    {
+        //Create new empty Texture
+        Texture2D newTex = new Texture2D(oldTexture.width, oldTexture.height, newFormat, false);
+        //Copy old texture pixels into new one
+        newTex.SetPixels(oldTexture.GetPixels());
+        //Apply
+        newTex.Apply();
+
+        return newTex;
+    }
+
     public static void LoadResources()
     {
         ChunkObject = Resources.Load<GameObject>("Chunk");
@@ -160,15 +180,19 @@ public static class Globals
         {
             textures.Add(Resources.Load<Texture2D>("Textures/" + i.GetAttribute("texture")));
         }
-        Texture2D packedTexture = new Texture2D(8192, 8192, TextureFormat.RGBA32, false);
+        Texture2D packedTexture = new Texture2D(8192, 8192);
+        var rects = packedTexture.PackTextures(textures.ToArray(), 4);
+        packedTexture = packedTexture.ChangeFormat(TextureFormat.RGBA32);
+        uPaddingBleed.BleedEdges(packedTexture, 4, rects, false);
+        packedTexture.filterMode = FilterMode.Point;
         int index = 0;
-        foreach (var rect in packedTexture.PackTextures(textures.ToArray(), 2))
+        foreach (var rect in rects)
         {
             Textures.Add((document.DocumentElement.ChildNodes[index] as XmlElement).GetAttribute("name"), rect);
             index++;
         }
-        packedTexture.filterMode = FilterMode.Point;
-        PackedMaterial.mainTexture = packedTexture;
+        
+        PackedMaterial.SetTexture("_MainTex", packedTexture);
 
         foreach (var i in BlockTypes)
         {
