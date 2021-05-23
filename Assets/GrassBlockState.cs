@@ -23,10 +23,10 @@ public class GrassBlockState : IBlockState
         if (face == 0)
         {
             if (!Textures.ContainsKey("grass_generated"))
-            {
-                //Material mat = Material.Instantiate(Textures["grass_top"]);
-                //mat.color = new Color(134f / 255, 183f / 255, 131f / 255);
-            }
+            {/*
+                Material mat = Material.Instantiate(Textures["grass_top"]);
+                mat.color = new Color(134f / 255, 183f / 255, 131f / 255);
+            */}
 
             return Textures["grass_top"];
         }

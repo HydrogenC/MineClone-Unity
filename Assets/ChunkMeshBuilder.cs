@@ -37,6 +37,30 @@ class ChunkMeshBuilder
         triangles.AddRange(newTriangles);
     }
 
+    public void AddFace(int faceIndex, Vector3 basePos, IBlockState block)
+    {
+        Rect uvRect = block.GetFaceUVRect(faceIndex);
+        Vector2[] uvCoords = new Vector2[]
+        {
+            new Vector2(uvRect.xMin, uvRect.yMin),
+            new Vector2(uvRect.xMin, uvRect.yMax),
+            new Vector2(uvRect.xMax, uvRect.yMin),
+            new Vector2(uvRect.xMax, uvRect.yMax)
+        };
+        for (int i = 0; i < Vertices[faceIndex].Length; i++)
+        {
+            AddVertice(Vertices[faceIndex][i] + basePos, uvCoords[i]);
+        }
+
+        int[] triangles = new int[Triangles.Length];
+        for (int i = 0; i < Triangles.Length; i++)
+        {
+            triangles[i] = Triangles[i] + FaceCount * 4;
+        }
+        AddTriangles(triangles);
+        faceCount++;
+    }
+
     public Mesh BuildMesh()
     {
         Mesh mesh = new Mesh

@@ -97,7 +97,7 @@ public class ChunkScript : MonoBehaviour
             {
                 if (renderFace[i])
                 {
-                    AddFace(i, vector, ChunkData.Blocks[x, y, z]);
+                    meshBuilder.AddFace(i, vector, ChunkData.Blocks[x, y, z]);
                 }
             }
         });
@@ -111,6 +111,6 @@ public class ChunkScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateMesh();
+        //UpdateMesh();
     }
 }

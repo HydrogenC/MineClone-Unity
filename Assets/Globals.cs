@@ -108,11 +108,11 @@ public static class Globals
     {
         get;
         set;
-    } = 1;
+    } = 3;
 
     public static ConcurrentQueue<Action> ActionQueue = new ConcurrentQueue<Action>();
     public static ConcurrentDictionary<long, Chunk> Chunks = new ConcurrentDictionary<long, Chunk>();
-    public static Dictionary<string, Rect> Textures = new Dictionary<string, Material>();
+    public static Dictionary<string, Rect> Textures = new Dictionary<string, Rect>();
     public static Block[] BlockTypes = new Block[]
     {
         new Block
@@ -155,13 +155,19 @@ public static class Globals
         XmlDocument document = new XmlDocument();
         document.LoadXml(n.text);
 
-        List<Texture2D> textures = new List<Texture2D>(); 
+        List<Texture2D> textures = new List<Texture2D>();
         foreach (XmlElement i in document.DocumentElement.ChildNodes)
         {
             textures.Add(Resources.Load<Texture2D>("Textures/" + i.GetAttribute("texture")));
         }
-        Texture2D packedTexture = new Texture2D(8192, 8192);
-        packedTexture.PackTextures(textures.ToArray(), 0);
+        Texture2D packedTexture = new Texture2D(8192, 8192, TextureFormat.RGBA32, false);
+        int index = 0;
+        foreach (var rect in packedTexture.PackTextures(textures.ToArray(), 2))
+        {
+            Textures.Add((document.DocumentElement.ChildNodes[index] as XmlElement).GetAttribute("name"), rect);
+            index++;
+        }
+        packedTexture.filterMode = FilterMode.Point;
         PackedMaterial.mainTexture = packedTexture;
 
         foreach (var i in BlockTypes)
