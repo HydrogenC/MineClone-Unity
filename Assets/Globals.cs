@@ -9,7 +9,7 @@ using UnityEngine;
 
 public struct BlockPos
 {
-    long x, y, z;
+    public long x, y, z;
 
     public BlockPos(long x, long y, long z)
     {
@@ -191,7 +191,7 @@ public static class Globals
             Textures.Add((document.DocumentElement.ChildNodes[index] as XmlElement).GetAttribute("name"), rect);
             index++;
         }
-        
+
         PackedMaterial.SetTexture("_MainTex", packedTexture);
 
         foreach (var i in BlockTypes)
@@ -201,6 +201,19 @@ public static class Globals
                 state.SetBlockType(i);
             }
         }
+    }
+
+    public static IBlockState GetBlockAtPos(BlockPos pos)
+    {
+        return Chunks[GetChunkIndex(pos.x / ChunkX, pos.z / ChunkZ)].Blocks[(pos.x + ChunkX) % ChunkX, pos.y, (pos.z + ChunkZ) % ChunkZ];
+    }
+
+    public static void SetBlockAtPos(BlockPos pos, IBlockState state)
+    {
+        Chunk chunk = Chunks[GetChunkIndex(Mathf.FloorToInt((float)pos.x / ChunkX), Mathf.FloorToInt((float)pos.z / ChunkZ))];
+        chunk.Blocks[(pos.x + ChunkX) % ChunkX, pos.y, (pos.z + ChunkZ) % ChunkZ] = state;
+        GameObject.Find($"Chunk {chunk.ChunkPos.Item1} {chunk.ChunkPos.Item2}").GetComponent<ChunkScript>().UpdateMesh();
+        Debug.Log($"Chunk {chunk.ChunkPos.Item1} {chunk.ChunkPos.Item2} At {(pos.x + ChunkX) % ChunkX} {pos.y} {(pos.z + ChunkZ) % ChunkZ}");
     }
 
     public static long GetChunkIndex(long x, long z)

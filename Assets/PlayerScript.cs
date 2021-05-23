@@ -5,8 +5,10 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
+    const float horizentalRotationSpeed = 120, verticalRotationSpeed = 75;
     private (long, long) chunkPos = (long.MaxValue, long.MaxValue);
     public bool onSky = false, locked = true;
+    public GameObject wireFrame;
     float ty = 0;
 
     // Start is called before the first frame update
@@ -100,19 +102,36 @@ public class PlayerScript : MonoBehaviour
         transform.Translate(translation.normalized * Time.deltaTime * 5, Space.Self);
 
         Transform cameraTransform = Camera.main.transform;
-        float rotation = (cameraTransform.eulerAngles.x <= 90 ? cameraTransform.eulerAngles.x : cameraTransform.eulerAngles.x - 360)
-            - Input.GetAxis("Mouse Y") * Time.deltaTime * 50;
+        float cameraRotation = (cameraTransform.eulerAngles.x <= 90 ? cameraTransform.eulerAngles.x : cameraTransform.eulerAngles.x - 360)
+            - Input.GetAxis("Mouse Y") * Time.deltaTime * verticalRotationSpeed;
         cameraTransform.eulerAngles = new Vector3(
-            Mathf.Clamp(rotation, -90, 90),
+            Mathf.Clamp(cameraRotation, -90, 90),
             cameraTransform.eulerAngles.y,
             cameraTransform.eulerAngles.z
             );
-        transform.Rotate(new Vector3(0, Input.GetAxis("Mouse X") * Time.deltaTime * 80, 0), Space.Self);
+        transform.Rotate(new Vector3(0, Input.GetAxis("Mouse X") * Time.deltaTime * horizentalRotationSpeed, 0), Space.Self);
 
         if (Input.GetAxis("Jump") != 0 && !onSky)
         {
             GetComponent<Rigidbody>().velocity += new Vector3(0, 5f, 0);
             onSky = true;
+        }
+
+        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out var hitInfo, 10))
+        {
+            //Debug.Log("Raycasted at" + hitInfo.point.ToString());
+            BlockPos pos = new BlockPos(Mathf.FloorToInt(hitInfo.point.x), Mathf.RoundToInt(hitInfo.point.y - 1), Mathf.FloorToInt(hitInfo.point.z));
+            wireFrame.transform.position = new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f);
+            wireFrame.GetComponent<MeshRenderer>().enabled = true;
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                Globals.SetBlockAtPos(pos, Globals.BlockTypes[0].GetDefaultBlockState(Facing.PosY));
+            }
+        }
+        else
+        {
+            wireFrame.GetComponent<MeshRenderer>().enabled = false;
         }
     }
 

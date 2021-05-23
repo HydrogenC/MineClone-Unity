@@ -71,6 +71,8 @@
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\Resources\GrassShader.shader" />
+     <None Include="Assets\Resources\WireFrameShader.shader" />
+     <None Include="Assets\Resources\GrassSurfaceShader.shader" />
      <None Include="Assets\Resources\Blocks\Materials.xml" />
     <Reference Include="UnityEngine">
       <HintPath>D:\Program Files\Unity\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
@@ -668,6 +670,9 @@
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.2D.Sprite.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
