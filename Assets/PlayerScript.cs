@@ -9,10 +9,13 @@ public class PlayerScript : MonoBehaviour
     private (long, long) chunkPos = (long.MaxValue, long.MaxValue);
     public bool onSky = false, locked = true;
     public GameObject wireFrame;
-    float ty = 0;
+    float startY = 0;
 
     private float pitch;
     private float yaw;
+    private bool sprintMode = false;
+    private int targetFOV = 60;
+    private float deltaFOV = 80;
 
     // Start is called before the first frame update
     void Start()
@@ -20,7 +23,7 @@ public class PlayerScript : MonoBehaviour
         Globals.LoadResources();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        ty = transform.position.y;
+        startY = transform.position.y;
     }
 
     static void LoadVisibleChunks(long x, long z)
@@ -94,20 +97,33 @@ public class PlayerScript : MonoBehaviour
             }
             else
             {
-                transform.position = new Vector3(transform.position.x, ty, transform.position.z);
+                transform.position = new Vector3(transform.position.x, startY, transform.position.z);
             }
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftControl) && !sprintMode)
+        {
+            sprintMode = true;
+            targetFOV += 20;
         }
 
         Transform cameraTransform = Camera.main.transform;
         Vector3 translation = new Vector3();
         translation.x = Input.GetAxis("Horizontal");
         translation.z = Input.GetAxis("Vertical");
-        transform.Translate(translation.normalized * Time.deltaTime * 5, Space.Self);
+        float velocity = sprintMode ? 8 : 5;
+        transform.Translate(Time.deltaTime * velocity * translation.normalized, Space.Self);
+
+        if (translation.sqrMagnitude == 0 && sprintMode)
+        {
+            sprintMode = false;
+            targetFOV -= 20;
+        }
 
         GetComponent<Rigidbody>().useGravity = true;
         Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-        pitch = Mathf.Clamp(pitch - mouseDelta.y, -88, 88);
-        yaw += mouseDelta.x;
+        pitch = Mathf.Clamp(pitch - mouseDelta.y * 2, -88, 88);
+        yaw += mouseDelta.x * 2;
 
         if (Input.GetAxis("Jump") != 0 && !onSky)
         {
@@ -142,6 +158,20 @@ public class PlayerScript : MonoBehaviour
 
         cameraTransform.localRotation = Quaternion.Lerp(cameraTransform.localRotation, Quaternion.Euler(pitch, 0, 0), camFactor);
         transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, yaw, 0), camFactor);
+
+        float cameraFOV = Camera.main.fieldOfView;
+        if (cameraFOV != targetFOV)
+        {
+            if (Mathf.Abs(targetFOV - cameraFOV) > deltaFOV * Time.fixedDeltaTime)
+            {
+                Camera.main.fieldOfView +=
+                Mathf.Sign(targetFOV - cameraFOV) * deltaFOV * Time.fixedDeltaTime;
+            }
+            else
+            {
+                Camera.main.fieldOfView = targetFOV;
+            }
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
