@@ -5,11 +5,14 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
-    const float horizentalRotationSpeed = 120, verticalRotationSpeed = 75;
+    const float cameraSmoothing = 20.0f;
     private (long, long) chunkPos = (long.MaxValue, long.MaxValue);
     public bool onSky = false, locked = true;
     public GameObject wireFrame;
     float ty = 0;
+
+    private float pitch;
+    private float yaw;
 
     // Start is called before the first frame update
     void Start()
@@ -95,21 +98,16 @@ public class PlayerScript : MonoBehaviour
             }
         }
 
-        GetComponent<Rigidbody>().useGravity = true;
+        Transform cameraTransform = Camera.main.transform;
         Vector3 translation = new Vector3();
         translation.x = Input.GetAxis("Horizontal");
         translation.z = Input.GetAxis("Vertical");
         transform.Translate(translation.normalized * Time.deltaTime * 5, Space.Self);
 
-        Transform cameraTransform = Camera.main.transform;
-        float cameraRotation = (cameraTransform.eulerAngles.x <= 90 ? cameraTransform.eulerAngles.x : cameraTransform.eulerAngles.x - 360)
-            - Input.GetAxis("Mouse Y") * Time.deltaTime * verticalRotationSpeed;
-        cameraTransform.eulerAngles = new Vector3(
-            Mathf.Clamp(cameraRotation, -90, 90),
-            cameraTransform.eulerAngles.y,
-            cameraTransform.eulerAngles.z
-            );
-        transform.Rotate(new Vector3(0, Input.GetAxis("Mouse X") * Time.deltaTime * horizentalRotationSpeed, 0), Space.Self);
+        GetComponent<Rigidbody>().useGravity = true;
+        Vector2 mouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        pitch = Mathf.Clamp(pitch - mouseDelta.y, -88, 88);
+        yaw += mouseDelta.x;
 
         if (Input.GetAxis("Jump") != 0 && !onSky)
         {
@@ -120,7 +118,9 @@ public class PlayerScript : MonoBehaviour
         if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out var hitInfo, 10))
         {
             //Debug.Log("Raycasted at" + hitInfo.point.ToString());
-            BlockPos pos = new BlockPos(Mathf.FloorToInt(hitInfo.point.x), Mathf.RoundToInt(hitInfo.point.y - 1), Mathf.FloorToInt(hitInfo.point.z));
+            long posZ = transform.rotation.eulerAngles.y < 180 ? Mathf.CeilToInt(hitInfo.point.z) : Mathf.FloorToInt(hitInfo.point.z);
+
+            BlockPos pos = new BlockPos(Mathf.FloorToInt(hitInfo.point.x), Mathf.RoundToInt(hitInfo.point.y - 1), posZ);
             wireFrame.transform.position = new Vector3(pos.x + 0.5f, pos.y + 0.5f, pos.z + 0.5f);
             wireFrame.GetComponent<MeshRenderer>().enabled = true;
 
@@ -133,6 +133,15 @@ public class PlayerScript : MonoBehaviour
         {
             wireFrame.GetComponent<MeshRenderer>().enabled = false;
         }
+    }
+
+    void FixedUpdate()
+    {
+        Transform cameraTransform = Camera.main.transform;
+        var camFactor = Mathf.Clamp01(cameraSmoothing * Time.deltaTime);
+
+        cameraTransform.localRotation = Quaternion.Lerp(cameraTransform.localRotation, Quaternion.Euler(pitch, 0, 0), camFactor);
+        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(0, yaw, 0), camFactor);
     }
 
     private void OnCollisionEnter(Collision collision)
